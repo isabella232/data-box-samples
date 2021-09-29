@@ -10,7 +10,7 @@
 Split By Device
 ```
 .\generateXMLFilesForExport.ps1
-        [-Subscription] <String>
+        [-SubscriptionName] <String>
         [-ResourceGroupName] <String>
         [-StorageAccountName] <String>
         [-Device] <String>
@@ -20,7 +20,7 @@ Split By Device
 Split By DataSize
 ```
 .\generateXMLFilesForExport.ps1
-        [-Subscription] <String>
+        [-SubscriptionName] <String>
         [-ResourceGroupName] <String>
         [-StorageAccountName] <String>
         [-DataSize] <Long>
@@ -30,7 +30,7 @@ Split By DataSize
 ```
 
 ## Parameters
-#### `Subscription <String>`
+#### `SubscriptionName <String>`
 - Name of Subscription
 #### `ResourceGroupName <String>`
 - Name of Resource Group
@@ -56,7 +56,7 @@ Split By DataSize
 4. Run the script. For example:  
 
     ```
-    .\generateXMLFilesForExport.ps1 -Subscription exampleSub -ResourceGroupName exampleRG -StorageAccountName exampleStorageAccount -ContainerNames container1,container2 -Device DataBox
+    .\generateXMLFilesForExport.ps1 -SubscriptionName exampleSub -ResourceGroupName exampleRG -StorageAccountName exampleStorageAccount -ContainerNames container1,container2 -Device DataBox
     ```
 
 5. With an **Unrestricted** execution policy, you'll see the following text. Type `R` to run the script.
