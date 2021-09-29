@@ -5,42 +5,42 @@
 
     [Parameter(Mandatory = $true, ParameterSetName = "byPodSize")]
     [Parameter(Mandatory = $true, ParameterSetName = "byPodDevice")]
-    [string]$resourceGroupName,
+    [string]$ResourceGroupName,
 
     [Parameter(Mandatory = $true, ParameterSetName = "byPodSize")]
     [Parameter(Mandatory = $true, ParameterSetName = "byPodDevice")]
-    [string]$storageAccountName,
+    [string]$StorageAccountName,
 
 
     [Parameter(Mandatory = $true, ParameterSetName = "byPodSize")]
     [ValidateRange(1, [long]::MaxValue)]
-    [long]$dataSize,
+    [long]$DataSize,
 
     [Parameter(Mandatory = $true, ParameterSetName = "byPodDevice")]
     [ValidateSet('DataBox', 'DataBoxHeavy')]
-    [string]$device = 'DataBox',
+    [string]$Device = 'DataBox',
 
-    [string[]]$containerNames = "",
+    [string[]]$ContainerNames = "",
 
     [ValidateRange(1, [int]::MaxValue)]
-    [int]$batchSize = 100000,
+    [int]$BatchSize = 100000,
 
-    [string]$storageAccountKey,
+    [string]$StorageAccountKey,
 
     # testing args
-    [string]$failureContainer,
-    [long]$failAfterNBlobs
+    [string]$FailureContainer,
+    [long]$FailAfterNBlobs
 
 )
 
 Start-Transcript -Path "$PSScriptroot/log.txt" -IncludeInvocationHeader
 
-if ($dataSize -eq 0) {
-    if ($device -eq "DataBox") {
-        $dataSize = 76TB * 0.95
+if ($DataSize -eq 0) {
+    if ($Device -eq "DataBox") {
+        $DataSize = 76TB * 0.95
     }
-    elseif ($device -eq "DataBoxHeavy") {
-        $dataSize = 764TB * 0.95
+    elseif ($Device -eq "DataBoxHeavy") {
+        $DataSize = 764TB * 0.95
     }
 }
 
@@ -275,26 +275,26 @@ function loadStateFromCheckpoint() {
 # Main program starts here
 try {
     # authentication logic
-    if ($storageAccountKey) {
-        $storageAccountContext = getStorageAccountContextFromAccountKey $storageAccountName $storageAccountKey
+    if ($StorageAccountKey) {
+        $storageAccountContext = getStorageAccountContextFromAccountKey $StorageAccountName $StorageAccountKey
     }
     else {
-        $storageAccountContext = getStorageAccountContextFromCredentialsOrSavedContext $resourceGroupName $storageAccountName $SubscriptionName
+        $storageAccountContext = getStorageAccountContextFromCredentialsOrSavedContext $ResourceGroupName $StorageAccountName $SubscriptionName
     }
 
     # creating new state or loading previous state from checkpoint file
-    if (shouldLoadCheckpoint $SubscriptionName $resourceGroupName $storageAccountName $containerNames) {
+    if (shouldLoadCheckpoint $SubscriptionName $ResourceGroupName $StorageAccountName $ContainerNames) {
         $state = loadStateFromCheckpoint
     }
     else {
         createNewOutputDir
         deleteCheckpointIfExists
-        $state = createNewState $SubscriptionName $resourceGroupName $storageAccountName $containerNames $dataSize
+        $state = createNewState $SubscriptionName $ResourceGroupName $StorageAccountName $ContainerNames $DataSize
     }
 
     #getting containers 
     try {
-        $blobContainers = getContainers $storageAccountContext $containerNames
+        $blobContainers = getContainers $storageAccountContext $ContainerNames
     }
     catch {
         if ($_.Exception.Message -like "*Server failed to authenticate the request.*") {
@@ -306,9 +306,9 @@ try {
     }
 
     if (!$blobContainers) {
-        Write-Error "No containers matching '$containerNames' found in '$storageAccountName'" -ErrorAction Stop
+        Write-Error "No containers matching '$ContainerNames' found in '$StorageAccountName'" -ErrorAction Stop
     }
-    Write-Host "$(Get-Timestamp) Processing containers: '$($blobContainers.Name)', storage account: '${storageAccountName}', resource group: '${resourceGroupName}'"
+    Write-Host "$(Get-Timestamp) Processing containers: '$($blobContainers.Name)', storage account: '${StorageAccountName}', resource group: '${ResourceGroupName}'"
 
     # enumerating each blob in container and writing to xml file
     for ($state.containerIdx; $state.containerIdx -lt $blobContainers.Length; $state.containerIdx++) {
@@ -322,14 +322,14 @@ try {
             $state.saveToJson()
 
             #for testing, sets failure point after enumerating n blobs in x container
-            if ($failureContainer) {
-                if ($containerNames[$state.containerIdx] -eq $failureContainer -and $state.blobCount -ge $failAfterNBlobs) {
+            if ($FailureContainer) {
+                if ($ContainerNames[$state.containerIdx] -eq $FailureContainer -and $state.blobCount -ge $FailAfterNBlobs) {
                     Write-Error "exception" -ErrorAction Stop
                 }
             }
 
             # get blob batch from azure
-            $blobs = getNextBlobBatch $blobContainers $state.containerIdx $state.token $batchSize
+            $blobs = getNextBlobBatch $blobContainers $state.containerIdx $state.token $BatchSize
             if ($blobs.Length -le 0) {
                 Write-Error "getNextBlobBatch returned 0 blobs, please check that the data in $containerName has not been deleted" -ErrorAction Stop
             }
@@ -338,14 +338,14 @@ try {
 
             # write blob batch to xml files
             foreach ($blob in $blobs) {
-                if ($blob.Length -gt $dataSize) {
+                if ($blob.Length -gt $DataSize) {
                     Write-Error "the size of one blob cannot be greater than the device size" -ErrorAction Stop
                 }
                 if (($state.currentBin.remainingStorage - $blob.Length) -lt 0) {
                     $state.currentBin.closeBin()
                     Write-Host -ForeGroundColor Green "`r$(Get-TimeStamp) $($state.currentBin.fileName) is ready for an export order!" | timestamp
                     Write-Host -ForeGroundColor Yellow -NoNewLine "$(Get-TimeStamp) blobs processed: $($state.blobCount)"
-                    $state.currentBin = [StorageBin]::new($dataSize, $storageAccountName)
+                    $state.currentBin = [StorageBin]::new($DataSize, $StorageAccountName)
                 }
                 $state.currentBin.writeBlob($containerName, $blob)
             }
