@@ -1,7 +1,7 @@
 ﻿param (
     [Parameter(Mandatory = $true, ParameterSetName = "byPodSize")]
     [Parameter(Mandatory = $true, ParameterSetName = "byPodDevice")]
-    [string]$subscription,
+    [string]$SubscriptionName,
 
     [Parameter(Mandatory = $true, ParameterSetName = "byPodSize")]
     [Parameter(Mandatory = $true, ParameterSetName = "byPodDevice")]
@@ -107,7 +107,7 @@ class state {
     [StorageBin] $currentBin
 
     # metadata about previous run
-    [string]$subscription
+    [string]$subscriptionName
     [string]$resourceGroupName
     [string]$storageAccountName
     [string[]]$containerNames
@@ -116,13 +116,13 @@ class state {
 
     state () {}
 
-    state($token, $containerIdx, $blobCount, $currentBin, $subscription, $resourceGroupName, $storageAccountName, $containerNames) {
+    state($token, $containerIdx, $blobCount, $currentBin, $subscriptionName, $resourceGroupName, $storageAccountName, $containerNames) {
         $this.token = $token
         $this.containerIdx = $containerIdx
         $this.blobCount = $blobCount
         $this.currentBin = $currentBin
 
-        $this.subscription = $subscription
+        $this.subscriptionName = $subscriptionName
         $this.resourceGroupName = $resourceGroupName
         $this.storageAccountName = $storageAccountName
         $this.containerNames = $containerNames
@@ -142,7 +142,7 @@ class state {
                 'filePosition'     = $this.currentBin.sw.BaseStream.Position
             }
             'meta'         = @{
-                'subscription'       = $this.subscription
+                'subscriptionName'       = $this.subscriptionName
                 'resourceGroupName'  = $this.resourceGroupName
                 'storageAccountName' = $this.storageAccountName
                 'containerNames'     = $this.containerNames
@@ -186,13 +186,13 @@ function getContainers($storageAccountContext, $containerNames) {
     }
 }
 
-function matchesPreviousRun($subscription, $resourceGroupName, $storageAccountName, $containerNames) {
+function matchesPreviousRun($subscriptionName, $resourceGroupName, $storageAccountName, $containerNames) {
     $prevRunMeta = (Get-Content "checkpoint.json" | Out-String | ConvertFrom-Json).meta
 
     $prevRunContainerNamesStr = $prevRunMeta.containerNames -join ","
     $containerNamesStr = $containerNames -join ","
 
-    [bool]$ret = ($prevRunMeta.subscription -eq $subscription -and $prevRunMeta.resourceGroupName -eq $resourceGroupName -and $prevRunMeta.storageAccountName -eq $storageAccountName -and $prevRunContainerNamesStr -eq $containerNamesStr)
+    [bool]$ret = ($prevRunMeta.subscriptionName -eq $subscriptionName -and $prevRunMeta.resourceGroupName -eq $resourceGroupName -and $prevRunMeta.storageAccountName -eq $storageAccountName -and $prevRunContainerNamesStr -eq $containerNamesStr)
     return $ret
 }
 
@@ -223,31 +223,31 @@ function getStorageAccountContextFromAccountKey($storageAccountName, $storageAcc
     return $storageAccountContext
 }
 
-function getStorageAccountContextFromCredentialsOrSavedContext($resourceGroupName, $storageAccountName) {
+function getStorageAccountContextFromCredentialsOrSavedContext($resourceGroupName, $storageAccountName, $subscriptionName) {
     $currentContext = Get-AzContext
-    if ($currentContext.Subscription.Name -eq $subscription) {
+    if ($currentContext.Subscription.Name -eq $subscriptionName) {
         Write-Host "storage account context loaded from previous run, skipping authentication"
     }
     else {
         Write-Host "authenticating storage account.."
-        Connect-AzAccount -Subscription $subscription -ErrorAction Stop | Out-Null
+        Connect-AzAccount -Subscription $subscriptionName -ErrorAction Stop | Out-Null
         Write-Host "storage account authenticated"
     }
     $storageAccountContext = (Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName -ErrorAction Stop).Context
     return $storageAccountContext
 }
 
-function shouldLoadCheckpoint ($subscription, $resourceGroupName, $storageAccountName, $containerNames) {
-    $shouldLoadCheckpoint = (Test-Path -Path "checkpoint.json") -and (matchesPreviousRun $subscription $resourceGroupName $storageAccountName $containerNames) -and ((userWantsToLoadCheckpoint) -eq $true)
+function shouldLoadCheckpoint ($subscriptionName, $resourceGroupName, $storageAccountName, $containerNames) {
+    $shouldLoadCheckpoint = (Test-Path -Path "checkpoint.json") -and (matchesPreviousRun $subscriptionName $resourceGroupName $storageAccountName $containerNames) -and ((userWantsToLoadCheckpoint) -eq $true)
     return $shouldLoadCheckpoint
 }
 
-function createNewState($subscription, $resourceGroupName, $storageAccountName, $containerNames, $dataSize) {
+function createNewState($subscriptionName, $resourceGroupName, $storageAccountName, $containerNames, $dataSize) {
     $token = $null
     $containerIdx = 0
     $blobCount = 0
     $currentBin = [StorageBin]::new($dataSize, $storageAccountName)
-    return [state]::new($token, $containerIdx, $blobCount, $currentBin, $subscription, $resourceGroupName, $storageAccountName, $containerNames)
+    return [state]::new($token, $containerIdx, $blobCount, $currentBin, $subscriptionName, $resourceGroupName, $storageAccountName, $containerNames)
 }
 
 function Get-TimeStamp {
@@ -264,7 +264,7 @@ function loadStateFromCheckpoint() {
     $currentBinData = $jsonData.currentBin
     $state.currentBin = [StorageBin]::new($currentBinData.storageSize, $currentBinData.remainingStorage, $currentBinData.fileName, $currentBinData.numBlobs, $currentBinData.filePosition)
 
-    $state.subscription = $jsonData.meta.subscription
+    $state.subscriptionName = $jsonData.meta.subscriptionName
     $state.resourceGroupName = $jsonData.meta.resourceGroupName
     $state.storageAccountName = $jsonData.meta.storageAccountName
     $state.containerNames = $jsonData.meta.containerNames
@@ -279,17 +279,17 @@ try {
         $storageAccountContext = getStorageAccountContextFromAccountKey $storageAccountName $storageAccountKey
     }
     else {
-        $storageAccountContext = getStorageAccountContextFromCredentialsOrSavedContext $resourceGroupName $storageAccountName
+        $storageAccountContext = getStorageAccountContextFromCredentialsOrSavedContext $resourceGroupName $storageAccountName $SubscriptionName
     }
 
     # creating new state or loading previous state from checkpoint file
-    if (shouldLoadCheckpoint $subscription $resourceGroupName $storageAccountName $containerNames) {
+    if (shouldLoadCheckpoint $SubscriptionName $resourceGroupName $storageAccountName $containerNames) {
         $state = loadStateFromCheckpoint
     }
     else {
         createNewOutputDir
         deleteCheckpointIfExists
-        $state = createNewState $subscription $resourceGroupName $storageAccountName $containerNames $dataSize
+        $state = createNewState $SubscriptionName $resourceGroupName $storageAccountName $containerNames $dataSize
     }
 
     #getting containers 
