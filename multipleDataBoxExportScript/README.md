@@ -22,11 +22,9 @@ The `generateXMLFilesForExport.ps1` generates XML files for exporting from Azure
 Before you begin, make sure you have:
 
 - Windows client
-- Azure subscription to use for your Azure Data Box or Azure Data Box Heavy resources
-- Resource group to use to manage the resources
 - PowerShell 5.1 or later
-- Az PowerShell 6.4.0
-- `multipleDataBoxExport` script, stored in a convenient location
+- Az PowerShell 6.4.0 or later
+- `generateXMLFilesForExport.ps1` script, stored in a convenient location
 
 ### Install Azure PowerShell
 
@@ -88,10 +86,6 @@ Before you begin, make sure you have:
 
 ## Syntax
 
-You can split the split the blobs into XML files based on the device that you're ordering (Data Box or Data Box Heavy), or you can specify a data size.
-
-### Split by device: Data Box or Data Box Heavy
-
 ```powershell
 .\generateXMLFilesForExport.ps1
         [-SubscriptionName] <String>
@@ -102,30 +96,18 @@ You can split the split the blobs into XML files based on the device that you're
         [-StorageAccountKey] <String> (Optional)
 ```
 
-### Split by data size
-
-```powershell
-.\generateXMLFilesForExport.ps1
-        [-SubscriptionName] <String>
-        [-ResourceGroupName] <String>
-        [-StorageAccountName] <String>
-        [-DataSize] <Long>
-        [-Container] <String[]> (Optional)
-        [-StorageAccountKey] <String> (Optional)
-```
-
 ## Parameters
 
 | Parameter | Description |
 |-----------|-------------|
-|`SubscriptionName <String>`|The Azure subscription to use for the export orders.|
-|`ResourceGroupName <String>`|The resource group to use for the orders.|
-|`StorageAccountName <String>`|The name of the Azure Storage account to use for the orders.|
+|`SubscriptionName <String>`|The Azure subscription for your storage account.|
+|`ResourceGroupName <String>`|The resource group for your storage account.|
+|`StorageAccountName <String>`|Name of your storage account.|
+`Device <String>`|Indicates whether you're exporting to Data Box (`"DataBox"`) devices or Data Box Heavy (`"DataBoxHeavy"`) devices. <br>Do not use the `Device` parameter with `DataSize`.|
+`ContainerNames <String[]>` (Optional)|Selects containers to export. This parameter can contain:<ul><li>a single container</li><li>a list of containers separated by commas</li><li>wildcard characters to select containers matching a pattern. </li></ul>If you don't include this parameter, all containers in the storage account are processed.|
 |`StorageAccountKey <String>` (Optional) |The access key for the storage account. By default, PowerShell uses the user's credentials to authenticate the storage account. Use the access key if you don't otherwise have access to the storage account. [Find out the account access key](https://docs.microsoft.com/storage/common/storage-account-keys-manage?tabs=azure-portal).|
-|`Device <String>`|Indicates whether you're exporting to Data Box (`"DataBox"`) devices or Data Box Heavy (`"DataBoxHeavy"`) devices. This parameter determines the maximum blob size for the XML files.<br>Do not use the `Device` parameter with `DataSize`.|
-|`DataSize> <Long>` (Optional)|Indicates the size of the device you're exporting to.<br>Do not use the `DataSize` parameter with `Device`.|
-|`Container <String[]>` (Optional)|Selects containers to export. This parameter can contain:<ul><li>a single container</li><li>a list of containers separated by commas</li><li>wildcard characters to select multiple containers or blobs within a container. For wildcard examples, see [Prefix examples](https://docs.microsoft.com/azure/databox/data-box-deploy-export-ordered?tabs=prefix-examples#create-xml-file).</li></ul>If you don't include this parameter, all containers in the storage account are processed.|
-
+|`DataSize <Long>` (Optional)|Indicates the size of the device you're exporting to.<br>Do not use the `DataSize` parameter with `Device`.|
+|
 
 ## Usage notes
 
