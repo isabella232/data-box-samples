@@ -66,7 +66,7 @@ Before you begin, make sure you have:
 4. Run the script. For example:
 
    ```azurepowershell
-   .\generateXMLFilesForExport.ps1 -SubscriptionName exampleSubscription -ResourceGroupName exampleRG -StorageAccountName exampleStorageAccount -Container container1,container2 -Device DataBox
+   .\generateXMLFilesForExport.ps1 -SubscriptionName exampleSubscription -ResourceGroupName exampleRG -StorageAccountName exampleStorageAccount -ContainerNames container1,container2 -Device DataBox
    ```
 
 5. With an **Unrestricted** execution policy, you'll see the following text. Type `R` to run the script.
