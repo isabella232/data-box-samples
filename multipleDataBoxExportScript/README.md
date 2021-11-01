@@ -28,7 +28,7 @@ Before you begin, make sure you have:
 
 ### Install Azure PowerShell
 
-1. Install PowerShell v5.1 or later. For guidance, see [Install Azure PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7.1).
+1. Install PowerShell v5.1 or later. For guidance, see [Install Windows PowerShell](https://docs.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7.1).
 
 2. [Install Az PowerShell 6.4.0](https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-6.4.0&preserve-view=true).
   
