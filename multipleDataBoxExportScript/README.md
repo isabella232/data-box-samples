@@ -107,7 +107,6 @@ Before you begin, make sure you have:
 `ContainerNames <String[]>` (Optional)|Selects containers to export. This parameter can contain:<ul><li>a single container</li><li>a list of containers separated by commas</li><li>wildcard characters to select containers matching a pattern. </li></ul>If you don't include this parameter, all containers in the storage account are processed.|
 |`StorageAccountKey <String>` (Optional) |The access key for the storage account. By default, PowerShell uses the user's credentials to authenticate the storage account. Use the access key if you don't otherwise have access to the storage account. [Find out the account access key](https://docs.microsoft.com/storage/common/storage-account-keys-manage?tabs=azure-portal).|
 |`DataSize <Long>` (Optional)|Indicates the size of the device you're exporting to.<br>Do not use the `DataSize` parameter with `Device`.|
-|
 
 ## Usage notes
 
@@ -127,6 +126,9 @@ This script's performance is bottlenecked by the number of blobs you want to exp
 - When run on a local machine, this script can take >5 mins per 1 million blobs depending on network speed.
  
 [Overview of Azure Virtual Machines](https://docs.microsoft.com/azure/virtual-machines/windows/overview)
+
+### Resuming the script
+In the event where this script fails due to a network interruption or some other issue, you can resume the job from a checkpoint. If you rerun a script that previously failed you will be prompted with `"Would you like to load from checkpoint for previous job ran at <datetime of previous run>? (Y)/N"`. If `"Y"`, the job will resume. If `"N"` the job will start over.
 
 ## Sample output
 
