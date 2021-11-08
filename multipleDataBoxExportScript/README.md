@@ -132,133 +132,36 @@ In the event where this script fails due to a network interruption or some other
 
 ## Sample output
 
-### Sample 1: XML file for single Data Box
+### Export 
 
-This sample run generates an export XML for all blobs and files in the DBTestStorageAccount storage account. Since all of the data will fit on a single Data Box, the script creates a single XML file.
+This example splits `container1` into multiple DataBox export XML files. 
 
-Sample 1 command:
+Sample command:
 
 ```azurepowershell
-.\generateXMLFilesForExport.ps1 -Subscription 'DBtestSubscription' -ResourceGroupName DBtestRG -StorageAccountName DBtestAccount -Device DataBox
+.\generateXMLFilesForExport.ps1 -SubscriptionName "ExampleSubscription" -ResourceGroupName ExportTestRG -StorageAccountName 50milblobsworth365tb -ContainerNames container1 -Device DataBox
 ```
 
-Sample 1 output:
+Sample output:
 
 ```output
-PS C\Users\azureuser> cd Scripts\data-box-samples\multipleDataBoxExportScript
-PS C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript> .\generateXMLFilesForExport.ps1 -Subscription 'DBtestSubscription' -ResourceGroupName DBtestRG -StorageAccountName DBtestAccount -Device DataBox
-
-Transcript started, output file is C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript/log.txt
+Transcript started, output file is C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript/log.txt
 
 authenticating storage account..
 storage account authenticated
 
-[10/22/21 14:18:46] Processing containers: 'containerl contained containers databoxcopylog vhds xml1, storage account: 'DBtestAccount', resource group: 'DBtestRG'
+[11/01/21 15:01:27] Processing containers: 'container1', storage account: '50milblobsworth365tb', resource group: 'ExportTestRG'
 
-[10/22/21 14:18:46] processing container: 'containerl1...
-
-[10/22/21 14:18:46] blobs processed: 3
-
-[10/22/21 14:18:46] processing container: 'contained1...
-
-[10/22/21 14:18:49] blobs processed: 7
-
-[10/22/21 14:18:49] processing container: 'containers'...
-
-[10/22/21 14:18:49] blobs processed: 10
-
-[10/22/21 14:18:49] processing container: 'databoxcopylog'...
-
-[10/22/21 14:18:50] blobs processed: 12 [10/22/21 14:18:50] processing container: 'vhds'...
-
-[10/22/21 14:18:51] blobs processed: 14 [10/22/21 14:18:51] processing container: 'xml'.,.
-
-[10/22/21 14:18:51] blobs processed: 15
-
-[10/22/21 14:18:51] processing complete, export xml files generated successfully in exportxmlfiles/
-
-Transcript stopped, output file is C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript\log.txt
-```
-
-### Sample 2: Export to multiple XML files
-
-This test run exports to multiple XML files using a `Container` list. The maximum data size for an XML file is set explicitly using the `DataSize`.
-
-Sample 2 command:
-
-```azurepowershell
-.\generateXMLFilesForExport.ps1 -Subscription 'DBtestSubscription' -ResourceGroupName DBtestRG -StorageAccountName DBtestAccount -Container container1,container2,container3 -DataSize 250MB
-```
-
-Sample 2 output:
-
-```output
-Transcript started, output file is C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript/log.txt
-
-storage account context loaded from previous run, skipping authentication
-
-[10/22/21 15:29:01] Processing containers: 'container1 container2 container3', storage account: 'DBTestAccount', resource group: 'DBtestRG'
-
-[10/22/21 15:29:01] processing container: 'container1'...
-
-[10/22/21 15:29:02] blobs processed: 3
-
-[10/22/21 15:29:02] processing container: 'container2'... 
-
-[10/22/21 15:29:03] C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript\exportxmlfiles\export_DBtestAccount_2021-10-22_152859548.xml ready for an export order!
-
-[10/22/21 15:29:03]
-
-[10/22/21 15:29:03] blobs processed: 7
-
-[10/22/21 15:29:03] processing container: 'containers'...
-
-[10/22/21 15:29:03] blobs processed: 10
-
-[10/22/21 15:29:03] processing complete, export xml files generated successfully in exportxmlfiles/
-
-Transcript stopped, output file is C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript\log.txt
-```
-
-### Sample 3: Split very large file to multiple Data Boxes
-
-Sample 3 splits a very large file in a single container into multiple XML files for export to multiple Data Boxes.
-
-Sample 3 command:
-
-```azurepowershell
-.\generateXMLFilesForExport.ps1 -Subscription DBtestSubscription -ResourceGroupName DBtestRG -StorageAccountName DBtestAccount -DataSize 1099511627776 -ContainerNames 500gbfilesof5tb
-```
-
-Sample 3 output:
-
-```output
-Transcript started, output file is C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript\log.txt
-
-storage account context loaded from previous run, skipping authentication
-
-[10/22/21 15:43:57] Processing containers: '500gbfilesof5tb', storage account: 
-'DBTEstAccount', resource group: 'DBexportsRG'
-
-[10/22/21 15:43:57] processing container: '500gbfilesof5tb'...
-
-[10/22/21 15:43:58] C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_DBTestAccount_2021-10-22_154356392.xml is ready for an export order!
-
-[10/22/21 15:43:58]
-
-[10/22/21 15:43:58] C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_DBTestAccount_2021-10-22_154358396.xml is ready for an export order!
-
-[10/22/21 15:43:58]
-
-[10/22/21 15:43:58] C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_DBTestAccount_2021-10-22_154358412.xml is ready for an export order!
-
-[10/22/21 15:43:58]
-[10/22/21 15:43:58] C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_DBTestAccount_2021-10-22_154358423.xml is ready for an export order!
-
-[10/22/21 15:43:58]
-
-[10/22/21 15:43:58] blobs processed: 10
-
-[10/22/21 15:43:58] processing complete, export xml files generated successfully in exportxmlfiles/
-Transcript stopped, output file is C:\Users\azureuser\Scripts\data-box-samples\multipleDataBoxExportScript\log.txt
+[11/01/21 15:01:27] processing container: 'container1'...
+[11/01/21 15:41:07] C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_50milblobsworth365tb_2021-11-01_150126541.xml is ready for an export order!
+[11/01/21 15:41:07]
+[11/01/21 15:54:04] C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_50milblobsworth365tb_2021-11-01_154107217.xml is ready for an export order!
+[11/01/21 15:54:04]
+[11/01/21 16:24:15] C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_50milblobsworth365tb_2021-11-01_155404487.xml is ready for an export order!
+[11/01/21 16:24:15]
+[11/01/21 17:25:01] C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript/exportxmlfiles/export_50milblobsworth365tb_2021-11-01_162415471.xml is ready for an export order!
+[11/01/21 17:25:01]
+[11/01/21 17:50:01] blobs processed: 50002560
+[11/01/21 17:50:01] processing complete, export xml files generated successfully in exportxmlfiles/
+Transcript stopped, output file is C:\Users\azureuser\data-box-samples\multipleDataBoxExportScript\log.txt
 ```
