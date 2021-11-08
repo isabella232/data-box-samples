@@ -132,7 +132,7 @@ In the event where this script fails due to a network interruption or some other
 
 ## Sample output
 
-### Export 
+### Export 365TB to multiple DataBoxes
 
 This example splits `container1` into multiple DataBox export XML files. 
 
