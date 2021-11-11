@@ -15,7 +15,7 @@ ms.author: alkohli
 
 # Generate XML files for blob exports to multiple Data Box or Data Box Heavy devices
 
-The `generateXMLFilesForExport.ps1` generates XML files for exporting from Azure Blob storage containers to multiple Azure Data Box or Azure Data Box Heavy devices. You then [create an export order using the XML files](/azure/databox/data-box-deploy-export-ordered?tabs=sample-xml-file#export-order-using-xml-file).
+The `generateXMLFilesForExport.ps1` generates XML files for exporting from Azure Blob storage containers to multiple Azure Data Box or Azure Data Box Heavy devices. You then [create an export order using the XML files](https://docs.microsoft.com/en-us/azure/databox/data-box-deploy-export-ordered?tabs=sample-xml-file#export-order-using-xml-file).
 
 ## Prerequisites
 
