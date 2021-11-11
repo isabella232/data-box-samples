@@ -38,7 +38,7 @@ Before you begin, make sure you have:
 
 2. Download or clone the zip file for the repo.
 
-   ![Download zip file](data-box-order-clone-download-script-zip-file.png)
+   ![Download zip file](../img/data-box-download-multiorder-script.png)
 
    Extract the files from the zip, and save the script to a convenient location. Note where you saved it.
 
@@ -50,7 +50,7 @@ Before you begin, make sure you have:
 
 ## Run the script and create export orders
 
-1. Open Azure PowerShell as Administrator.
+1. Run PowerShell as Administrator.
 2. Set your execution policy to **Unrestricted**. This is needed because the script is an unsigned script.
 
    ```azurepowershell
@@ -60,7 +60,7 @@ Before you begin, make sure you have:
 3. Change directories to the directory where you stored the script. For example:
 
    ```azurepowershell
-   cd \scripts
+   cd \scripts\data-box-samples\multipleDataBoxExportScript\
    ```
 
 4. Run the script. For example:
@@ -75,7 +75,7 @@ Before you begin, make sure you have:
    Security warning
    Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your computer.
    If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning message. Do you want to
-   run C:\scripts\New-AzStackEdgeMultiOrder.ps1?
+   run C:\scripts\data-box.ps1?
    [D] Do not run  [R] Run once  [S] Suspend  [?] Help (default is "D"): R
    ```
 
@@ -98,14 +98,14 @@ Before you begin, make sure you have:
 
 ## Parameters
 
-| Parameter | Description |
-|-----------|-------------|
+| Parameter    | Description |
+|--------------|-------------|
 |`SubscriptionName <String>`|The Azure subscription for your storage account.|
 |`ResourceGroupName <String>`|The resource group for your storage account.|
 |`StorageAccountName <String>`|Name of your storage account.|
 `Device <String>`|Indicates whether you're exporting to Data Box (`"DataBox"`) devices or Data Box Heavy (`"DataBoxHeavy"`) devices. <br>Do not use the `Device` parameter with `DataSize`.|
 `ContainerNames <String[]>` (Optional)|Selects containers to export. This parameter can contain:<ul><li>a single container</li><li>a list of containers separated by commas</li><li>wildcard characters to select containers matching a pattern. </li></ul>If you don't include this parameter, all containers in the storage account are processed.|
-|`StorageAccountKey <String>` (Optional) |The access key for the storage account. By default, PowerShell uses the user's credentials to authenticate the storage account. Use the access key if you don't otherwise have access to the storage account. [Find out the account access key](https://docs.microsoft.com/storage/common/storage-account-keys-manage?tabs=azure-portal).|
+|`StorageAccountKey <String>` (Optional) |The access key for the storage account. By default, PowerShell uses the user's credentials to authenticate the storage account. Use the access key if you don't otherwise have access to the storage account. [Find out the account access key](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal).|
 |`DataSize <Long>` (Optional)|Indicates the size of the device you're exporting to.<br>Do not use the `DataSize` parameter with `Device`.|
 
 ## Usage notes
